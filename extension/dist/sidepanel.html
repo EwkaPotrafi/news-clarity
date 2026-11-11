@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>News Clarity</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <h1 data-t="title"></h1>
+    <p class="sub" data-t="subtitle"></p>
+  </header>
+
+  <section id="setup" class="notice" hidden>
+    <p data-t="noKey"></p>
+    <button id="open-settings" class="secondary" data-t="openSettings"></button>
+  </section>
+
+  <section id="start">
+    <button id="check-page" class="primary" data-t="checkPage"></button>
+    <label for="paste" class="label" data-t="orPaste"></label>
+    <textarea id="paste" rows="5" data-t-placeholder="pastePlaceholder"></textarea>
+    <button id="check-text" class="secondary" data-t="checkText"></button>
+  </section>
+
+  <section id="result" hidden>
+    <p id="item-info" class="info"></p>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <article id="answer" class="answer"></article>
+    <div id="actions" class="row" hidden>
+      <button id="copy" class="secondary" data-t="copy"></button>
+      <button id="new-check" class="secondary" data-t="newCheck"></button>
+    </div>
+    <button id="stop" class="secondary" data-t="stop" hidden></button>
+    <form id="follow-up" class="row" hidden>
+      <input id="follow-up-input" type="text" data-t-placeholder="followUpPlaceholder">
+      <button class="primary small" data-t="ask"></button>
+    </form>
+    <p class="footer" data-t="footer"></p>
+  </section>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

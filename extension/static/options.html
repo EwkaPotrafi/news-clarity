@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>News Clarity</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="options">
+  <h1 data-t="optTitle"></h1>
+  <form id="settings">
+    <label for="api-key" class="label" data-t="optKeyLabel"></label>
+    <input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
+    <p class="hint" data-t="optKeyHelp"></p>
+
+    <label for="lang" class="label" data-t="optLangLabel"></label>
+    <select id="lang">
+      <option value="pl">Polski</option>
+      <option value="en">English</option>
+    </select>
+
+    <label for="size" class="label" data-t="optSizeLabel"></label>
+    <select id="size">
+      <option value="normal" data-t="optSizeNormal"></option>
+      <option value="large" data-t="optSizeLarge"></option>
+      <option value="xl" data-t="optSizeXL"></option>
+    </select>
+
+    <div class="row">
+      <button type="submit" class="primary small" data-t="optSave"></button>
+      <button type="button" id="test" class="secondary" data-t="optTest"></button>
+    </div>
+    <p id="msg" class="status" role="status"></p>
+  </form>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

@@ -15,13 +15,17 @@ Built first for one reader (my father), and usable by anyone.
 | `evals/rubric.md` | Scoring checklist, including the left/right symmetry test |
 | `evals/results/` | Saved outputs, so versions can be compared over time |
 | `for-dad/setup-claude-project.md` | No-code setup as a Claude Project |
+| `for-dad/chrome-extension.md` | Polish one-page guide to the Chrome extension |
+| `extension/` | Chrome extension: one-click check of the page being read (see `extension/README.md`) |
 
 ## How to work on it
 1. Change `CLAUDE.md`.
 2. Run the cases in `evals/cases.md` with `/check`.
 3. Score them with `evals/rubric.md`. Above all, check that cases A and B read
    with equal tone and scepticism.
-4. Commit the instructions and the results together.
+4. Rebuild the Chrome extension (`cd extension && npm run build`) so it picks
+   up the new instructions.
+5. Commit the instructions, results and `extension/dist/` together.
 
 ## Principle
 Fair isn't the midpoint. Balance applies to values and interpretations,

@@ -55,3 +55,6 @@ Fair means:
   change, re-run the cases and save outputs to `evals/results/` so versions
   can be compared.
 - `for-dad/` holds the plain-language setup for non-technical readers.
+- `extension/` is a Chrome extension whose system prompt is built from this
+  file (everything above this section). After changing the instructions, run
+  `npm run build` in `extension/` and commit `extension/dist/`.
