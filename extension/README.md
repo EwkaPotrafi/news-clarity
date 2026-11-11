@@ -24,6 +24,12 @@ chat. Copy + open is the reliable, terms-friendly bridge.
   panel then shows a big "Skopiuj i otwórz" button.)
 - Polish by default, English in settings; text size Normal / Large / Extra large.
 
+## Install package
+`npm run package` builds `release/News-Clarity.zip`: the extension folder plus
+two illustrated PDF guides rendered from `install-guide/` (Polish
+`Instrukcja.pdf` for Dad, English `Install-guide.pdf` for whoever installs it).
+Edit the HTML in `install-guide/` to change the guides.
+
 ## Install (on Dad's computer, ~5 minutes)
 1. Get the `dist/` folder onto his computer (download the repo as ZIP from
    GitHub and unzip it, or copy just `extension/dist/`).
@@ -39,7 +45,7 @@ chat. Copy + open is the reliable, terms-friendly bridge.
 Chrome may show a "developer mode extensions" warning at startup; tell Dad
 it's expected and to click it away. If that's a nuisance, publish it as an
 **unlisted** item on the Chrome Web Store (one-off $5 developer fee):
-`npm run package` makes the ZIP to upload.
+upload the contents of `dist/` as a ZIP.
 
 ## The API key (only for Claude API mode)
 - Create it at console.anthropic.com → API keys. Use a **separate key just for
