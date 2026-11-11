@@ -8,9 +8,19 @@
 <body class="options">
   <h1 data-t="optTitle"></h1>
   <form id="settings">
-    <label for="api-key" class="label" data-t="optKeyLabel"></label>
-    <input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
-    <p class="hint" data-t="optKeyHelp"></p>
+    <label for="mode" class="label" data-t="optModeLabel"></label>
+    <select id="mode">
+      <option value="chatgpt" data-t="optModeChatgpt"></option>
+      <option value="grok" data-t="optModeGrok"></option>
+      <option value="api" data-t="optModeApi"></option>
+    </select>
+    <p class="hint" data-t="optModeHelp"></p>
+
+    <div id="api-section">
+      <label for="api-key" class="label" data-t="optKeyLabel"></label>
+      <input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
+      <p class="hint" data-t="optKeyHelp"></p>
+    </div>
 
     <label for="lang" class="label" data-t="optLangLabel"></label>
     <select id="lang">
@@ -27,7 +37,7 @@
 
     <div class="row">
       <button type="submit" class="primary small" data-t="optSave"></button>
-      <button type="button" id="test" class="secondary" data-t="optTest"></button>
+      <button type="button" id="test" class="secondary" data-t="optTest" hidden></button>
     </div>
     <p id="msg" class="status" role="status"></p>
   </form>

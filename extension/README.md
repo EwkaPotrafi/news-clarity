@@ -3,15 +3,25 @@
 Runs the News Clarity method (`../CLAUDE.md`) on whatever Dad is reading.
 One button in a side panel: **"Sprawdź ten artykuł"** (Check this article).
 
+## Two ways it can work (choose in settings)
+| Mode | How | Cost |
+|---|---|---|
+| **ChatGPT** (default) or **Grok** | Uses his existing subscription. The extension reads the article, writes the full News Clarity prompt (CLAUDE.md + the article), copies it, and opens chatgpt.com or grok.com. He pastes (Ctrl+V) and presses Enter. | Nothing beyond his subscription |
+| **Claude via API key** | Answer streams straight into the side panel, with follow-up questions. | Pay per use (see below) |
+
+Why the paste step: ChatGPT Plus and SuperGrok are subscriptions for their
+websites and apps only. They don't include API access, and there is no
+supported way for an extension to send messages through someone's logged-in
+chat. Copy + open is the reliable, terms-friendly bridge.
+
 ## What it does
 - **Toolbar icon** → opens a side panel next to the page.
-- **"Sprawdź ten artykuł"** → reads the article text from the open tab and sends
-  it to Claude, which searches current reporting from several outlets and
-  answers in the CLAUDE.md format (facts / claims / sides / wording / context /
-  pragmatic take / sources).
+- **"Sprawdź ten artykuł"** → reads the article text from the open tab and
+  hands it to the chosen assistant with the CLAUDE.md method.
 - **Paste box** → for forwarded WhatsApp/Facebook/email messages.
 - **Right-click** selected text → "News Clarity: sprawdź zaznaczony tekst".
-- **Follow-up questions** in the same panel; **copy** button to send an answer on.
+  (From the right-click menu Chrome sometimes blocks automatic copying; the
+  panel then shows a big "Skopiuj i otwórz" button.)
 - Polish by default, English in settings; text size Normal / Large / Extra large.
 
 ## Install (on Dad's computer, ~5 minutes)
@@ -19,9 +29,11 @@ One button in a side panel: **"Sprawdź ten artykuł"** (Check this article).
    GitHub and unzip it, or copy just `extension/dist/`).
 2. Chrome → `chrome://extensions` → switch on **Developer mode** (top right).
 3. **Load unpacked** → choose the `dist` folder.
-4. The settings page opens by itself: paste the API key, choose Polski, text
-   size Duży, **Zapisz**, then **Sprawdź klucz**.
-5. Click the puzzle-piece icon in the toolbar and **pin** News Clarity so the
+4. The settings page opens by itself: choose **ChatGPT** or **Grok**, Polski,
+   text size Duży, and click **Zapisz**. (Only API mode needs a key.)
+5. Make sure he is **logged in** to chatgpt.com / grok.com in this Chrome, and
+   that web search is available on his plan (it is on ChatGPT Plus and SuperGrok).
+6. Click the puzzle-piece icon in the toolbar and **pin** News Clarity so the
    icon is always visible.
 
 Chrome may show a "developer mode extensions" warning at startup; tell Dad
@@ -29,7 +41,7 @@ it's expected and to click it away. If that's a nuisance, publish it as an
 **unlisted** item on the Chrome Web Store (one-off $5 developer fee):
 `npm run package` makes the ZIP to upload.
 
-## The API key (read this)
+## The API key (only for Claude API mode)
 - Create it at console.anthropic.com → API keys. Use a **separate key just for
   Dad** and set a **monthly spend limit** on its workspace (e.g. $10–20).
 - It is stored only in Chrome's local extension storage on his computer and
@@ -63,9 +75,9 @@ computer replace the `dist` folder and press the ↻ reload button on
 |---|---|
 | `build.mjs` | Bundles `src/` into `dist/`, injecting CLAUDE.md |
 | `src/claude.js` | The only code that calls the Claude API (model, web search/fetch tools, streaming, pause/resume) |
-| `src/prompt.js` | Browser addendum to CLAUDE.md, and how the item is wrapped for the model |
+| `src/prompt.js` | Browser addendum to CLAUDE.md (panel and ChatGPT/Grok variants), and how the item is wrapped |
 | `src/extract.js` | Pulls article text out of a page (skips nav, ads, comments) |
-| `src/sidepanel.js` | Panel UI: buttons, streaming display, follow-ups, errors |
+| `src/sidepanel.js` | Panel UI: ChatGPT/Grok hand-off, or streaming display + follow-ups in API mode |
 | `src/markdown.js` | Small, safe Markdown → HTML (escapes everything, only http(s) links) |
 | `src/background.js` | Opens the panel, right-click menu |
 | `src/options.js` | Settings page |

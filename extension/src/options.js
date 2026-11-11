@@ -13,10 +13,19 @@ function applyStrings(lang, size) {
 }
 
 const settings = await loadSettings();
+$("mode").value = settings.mode;
 $("api-key").value = settings.apiKey;
 $("lang").value = settings.lang;
 $("size").value = settings.textSize;
 applyStrings(settings.lang, settings.textSize);
+
+function showApiSection() {
+  const api = $("mode").value === "api";
+  $("api-section").hidden = !api;
+  $("test").hidden = !api;
+}
+showApiSection();
+$("mode").onchange = showApiSection;
 
 $("lang").onchange = () => applyStrings($("lang").value, $("size").value);
 $("size").onchange = () => applyStrings($("lang").value, $("size").value);
@@ -24,6 +33,7 @@ $("size").onchange = () => applyStrings($("lang").value, $("size").value);
 $("settings").onsubmit = async (e) => {
   e.preventDefault();
   await chrome.storage.local.set({
+    mode: $("mode").value,
     apiKey: $("api-key").value.trim(),
     lang: $("lang").value,
     textSize: $("size").value,

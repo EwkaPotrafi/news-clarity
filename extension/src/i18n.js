@@ -40,6 +40,20 @@ export const STRINGS = {
     truncated: "Uwaga: tekst był bardzo długi, więc przekazano tylko jego początek.",
     footer: "Odpowiedź przygotowała sztuczna inteligencja. Przy niskiej pewności — wstrzymaj się z udostępnianiem.",
     // options page
+    // chat hand-off (ChatGPT / Grok subscription)
+    handoffTitle: "Teraz jeszcze dwa kroki:",
+    handoffStep1: "✓ {app} otwiera się w nowej karcie, a pytanie jest już skopiowane.",
+    handoffStep2: "Kliknij w pole wiadomości i wklej: Ctrl+V (na Macu: Cmd+V).",
+    handoffStep3: "Naciśnij Enter i poczekaj na odpowiedź.",
+    handoffNotCopied: "Kliknij przycisk poniżej, żeby skopiować tekst i otworzyć {app}.",
+    copyAndOpen: "Skopiuj i otwórz {app}",
+    copyAgain: "Skopiuj jeszcze raz",
+    handoffTip: "Jeśli {app} nie szuka w internecie, poproś: „Sprawdź to w aktualnych źródłach”.",
+    optModeLabel: "Którego asystenta używać?",
+    optModeChatgpt: "ChatGPT (moja subskrypcja)",
+    optModeGrok: "Grok (moja subskrypcja)",
+    optModeApi: "Claude przez klucz API (odpowiedź w panelu)",
+    optModeHelp: "Przy ChatGPT i Groku rozszerzenie przygotowuje pytanie i otwiera stronę asystenta; wystarczy wkleić i nacisnąć Enter. Nic nie kosztuje poza subskrypcją.",
     optTitle: "News Clarity — ustawienia",
     optKeyLabel: "Klucz API Anthropic",
     optKeyHelp: "Zaczyna się od „sk-ant-”. Zapisany tylko na tym komputerze.",
@@ -93,6 +107,19 @@ export const STRINGS = {
     refusal: "The model declined to assess this material. Try pasting just the article text.",
     truncated: "Note: the text was very long, so only its beginning was sent.",
     footer: "Written by AI. When confidence is low, wait before sharing.",
+    handoffTitle: "Now just two steps:",
+    handoffStep1: "✓ {app} is opening in a new tab, and the question is already copied.",
+    handoffStep2: "Click in the message box and paste: Ctrl+V (Mac: Cmd+V).",
+    handoffStep3: "Press Enter and wait for the answer.",
+    handoffNotCopied: "Click the button below to copy the text and open {app}.",
+    copyAndOpen: "Copy and open {app}",
+    copyAgain: "Copy again",
+    handoffTip: "If {app} doesn't search the web, ask it: “Check this against current sources.”",
+    optModeLabel: "Which assistant should it use?",
+    optModeChatgpt: "ChatGPT (my subscription)",
+    optModeGrok: "Grok (my subscription)",
+    optModeApi: "Claude via API key (answer in the panel)",
+    optModeHelp: "With ChatGPT and Grok the extension prepares the question and opens the assistant's site; just paste and press Enter. No cost beyond the subscription.",
     optTitle: "News Clarity — settings",
     optKeyLabel: "Anthropic API key",
     optKeyHelp: "Starts with “sk-ant-”. Stored only on this computer.",
@@ -109,7 +136,14 @@ export const STRINGS = {
   },
 };
 
-export const DEFAULT_SETTINGS = { apiKey: "", lang: "pl", textSize: "large" };
+// mode: "chatgpt" | "grok" use the reader's own subscription (copy + open the
+// site); "api" calls Claude directly with an API key and answers in the panel.
+export const DEFAULT_SETTINGS = { mode: "chatgpt", apiKey: "", lang: "pl", textSize: "large" };
+
+export const CHAT_APPS = {
+  chatgpt: { name: "ChatGPT", url: "https://chatgpt.com/" },
+  grok: { name: "Grok", url: "https://grok.com/" },
+};
 
 export async function loadSettings() {
   const stored = await chrome.storage.local.get(DEFAULT_SETTINGS);

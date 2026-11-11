@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { loadSettings, t } from "./i18n.js";
+import { loadSettings, t, CHAT_APPS } from "./i18n.js";
 import { makeClient, runTurn } from "./claude.js";
-import { buildSystemPrompt, buildItemMessage } from "./prompt.js";
+import { buildSystemPrompt, buildItemMessage, buildChatPrompt } from "./prompt.js";
 import { readActiveTab } from "./extract.js";
 import { renderMarkdown, escapeHtml } from "./markdown.js";
 
@@ -11,6 +11,10 @@ let settings;
 let S; // UI strings for the chosen language
 let conversation = null; // { messages, system, parts: [{kind:'q'|'a', text}] }
 let controller = null;
+let handoff = null; // { prompt, app, opened } while handing over to ChatGPT/Grok
+
+const fmt = (str, app) => str.replaceAll("{app}", app.name);
+const needsKey = () => settings.mode === "api" && !settings.apiKey;
 
 function applyStrings() {
   document.documentElement.lang = settings.lang;
@@ -23,12 +27,14 @@ async function init() {
   settings = await loadSettings();
   S = t(settings.lang);
   applyStrings();
-  $("setup").hidden = Boolean(settings.apiKey);
+  $("setup").hidden = !needsKey();
 
   $("open-settings").onclick = () => chrome.runtime.openOptionsPage();
   $("check-page").onclick = checkPage;
   $("check-text").onclick = checkPasted;
   $("new-check").onclick = reset;
+  $("handoff-new").onclick = reset;
+  $("handoff-copy").onclick = () => copyAndOpen(true);
   $("copy").onclick = copyAnswer;
   $("stop").onclick = () => controller?.abort();
   $("follow-up").onsubmit = (e) => {
@@ -42,7 +48,7 @@ async function init() {
         settings = s;
         S = t(s.lang);
         applyStrings();
-        $("setup").hidden = Boolean(s.apiKey);
+        $("setup").hidden = !needsKey();
       });
     }
     if (area === "session" && changes.pending?.newValue) takePending();
@@ -83,7 +89,8 @@ function checkPasted() {
 }
 
 async function startCheck(item) {
-  if (!settings.apiKey) {
+  if (settings.mode !== "api") return startHandoff(item);
+  if (needsKey()) {
     $("setup").hidden = false;
     return;
   }
@@ -191,12 +198,72 @@ async function copyAnswer() {
 
 function showResult() {
   $("start").hidden = true;
+  $("handoff").hidden = true;
   $("result").hidden = false;
+}
+
+// --- ChatGPT / Grok mode -------------------------------------------------
+// We can't use a consumer subscription from code, so the extension does the
+// fiddly part (reading the article, writing the full News Clarity prompt) and
+// the reader does the last step: paste into the assistant's own page.
+
+async function startHandoff(item) {
+  const app = CHAT_APPS[settings.mode] ?? CHAT_APPS.chatgpt;
+  const { prompt, truncated } = buildChatPrompt(item, S.languageName);
+  handoff = { prompt, app, opened: false };
+
+  $("start").hidden = true;
+  $("result").hidden = true;
+  $("handoff").hidden = false;
+  $("handoff-info").textContent =
+    (item.kind === "pasted"
+      ? S.checkingPasted
+      : `${item.kind === "selection" ? S.checkingSelection : S.checkingPage} ${item.title || item.url}`) +
+    (truncated ? ` ${S.truncated}` : "");
+  $("step1").textContent = fmt(S.handoffStep1, app);
+  $("step2").textContent = S.handoffStep2;
+  $("step3").textContent = S.handoffStep3;
+  $("handoff-tip").textContent = fmt(S.handoffTip, app);
+
+  // Works when this runs straight from a click in the panel. From the
+  // right-click menu Chrome may refuse clipboard access; then he clicks the button.
+  await copyAndOpen(false);
+}
+
+async function copyAndOpen(fromButton) {
+  if (!handoff) return;
+  const { app } = handoff;
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(handoff.prompt);
+    copied = true;
+  } catch {
+    copied = false;
+  }
+
+  if (copied && !handoff.opened) {
+    handoff.opened = true;
+    await chrome.tabs.create({ url: app.url });
+  }
+
+  $("step1").classList.toggle("dim", !handoff.opened);
+  if (copied) {
+    $("handoff-msg").textContent = fromButton ? S.copied : "";
+    $("handoff-copy").textContent = S.copyAgain;
+    $("handoff-copy").className = "secondary";
+  } else {
+    $("handoff-msg").textContent = fmt(S.handoffNotCopied, app);
+    $("handoff-copy").textContent = fmt(S.copyAndOpen, app);
+    $("handoff-copy").className = "primary";
+  }
 }
 
 function reset() {
   if (busy()) return;
   conversation = null;
+  handoff = null;
+  $("handoff").hidden = true;
+  $("handoff-msg").textContent = "";
   $("answer").innerHTML = "";
   $("item-info").textContent = "";
   $("paste").value = "";

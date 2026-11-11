@@ -2,7 +2,9 @@
 // The system prompt = the project's CLAUDE.md (injected at build time by
 // build.mjs) + a short addendum about how the extension delivers items.
 
-const EXTENSION_ADDENDUM = (languageName) => `
+// `surface` is "panel" (answer streamed into our side panel via the Claude API)
+// or "chat" (the whole prompt is pasted into ChatGPT or Grok by the reader).
+const EXTENSION_ADDENDUM = (languageName, surface) => `
 ## Running inside the browser extension
 The reader is using a Chrome extension. They either pressed a button on a page
 they are reading, selected a passage, or pasted a forwarded message. The item
@@ -19,15 +21,40 @@ arrives inside <item> tags, together with the page title and URL when known.
 - If the page text looks cut off by a paywall, work from the headline, the
   visible text and your searches, and say so.
 - Write in ${languageName}, whatever the language of the item.
-- The answer is read in a narrow side panel by an older reader: short
+${
+  surface === "chat"
+    ? `- Use web search: this needs current reporting from several outlets, not
+  memory alone. If you cannot search, say so at the top and mark every point
+  you could not check as unverified.
+- Do not treat posts on social media as confirmation; they are claims.
+- The reader is older: short paragraphs, bullets, no tables. Aim for 400–800 words.`
+    : `- The answer is read in a narrow side panel by an older reader: short
   paragraphs, bullets, no tables, no nested lists. Use the bold section
   labels exactly as in the output format. Aim for 400–800 words.
 - Follow-up questions: answer briefly under the same rules, searching again
-  only if needed.
+  only if needed.`
+}
 `;
 
-export function buildSystemPrompt(languageName) {
-  return `${__NEWS_CLARITY_INSTRUCTIONS__}\n${EXTENSION_ADDENDUM(languageName)}`;
+export function buildSystemPrompt(languageName, surface = "panel") {
+  return `${__NEWS_CLARITY_INSTRUCTIONS__}\n${EXTENSION_ADDENDUM(languageName, surface)}`;
+}
+
+// One self-contained message for ChatGPT / Grok: instructions + item.
+// Sent in full every time, so there is nothing to set up or keep in sync
+// on the reader's ChatGPT or Grok account.
+export function buildChatPrompt(item, languageName) {
+  const { text, truncated } = buildItemMessage(item);
+  const prompt = [
+    "Please follow these instructions for your answer.",
+    "",
+    "<instructions>",
+    buildSystemPrompt(languageName, "chat"),
+    "</instructions>",
+    "",
+    text,
+  ].join("\n");
+  return { prompt, truncated };
 }
 
 const MAX_ITEM_CHARS = 60000;

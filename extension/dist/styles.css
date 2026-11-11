@@ -34,7 +34,7 @@ body {
   font: var(--base)/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 h1 { font-size: 1.3em; margin: 0 0 4px; }
-.sub, .info, .hint, .footer { color: var(--muted); font-size: 0.85em; margin: 0 0 12px; }
+.sub, .info, .footer { color: var(--muted); font-size: 0.85em; margin: 0 0 12px; }
 .top { margin-bottom: 16px; }
 .label { display: block; margin: 18px 0 6px; font-weight: 600; }
 
@@ -68,6 +68,13 @@ textarea, input[type="text"], input[type="password"], select {
 .answer hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .answer .question { color: var(--muted); font-style: italic; border-top: 1px solid var(--line); padding-top: 10px; }
 #stop { margin-top: 12px; }
+.handoff-title { font-size: 1.1em; margin: 8px 0; }
+.steps { padding-left: 1.4em; margin: 0 0 12px; }
+.steps li { margin: 8px 0; }
+.opened { font-weight: 600; margin: 8px 0; }
+.opened.dim { display: none; }
+#handoff-new { margin-top: 16px; }
+.hint { color: var(--muted); font-size: 0.85em; }
 .footer { margin-top: 20px; }
 
 body.options { max-width: 560px; margin: 0 auto; padding: 32px 16px; }

@@ -26613,6 +26613,20 @@ var STRINGS = {
     truncated: "Uwaga: tekst by\u0142 bardzo d\u0142ugi, wi\u0119c przekazano tylko jego pocz\u0105tek.",
     footer: "Odpowied\u017A przygotowa\u0142a sztuczna inteligencja. Przy niskiej pewno\u015Bci \u2014 wstrzymaj si\u0119 z udost\u0119pnianiem.",
     // options page
+    // chat hand-off (ChatGPT / Grok subscription)
+    handoffTitle: "Teraz jeszcze dwa kroki:",
+    handoffStep1: "\u2713 {app} otwiera si\u0119 w nowej karcie, a pytanie jest ju\u017C skopiowane.",
+    handoffStep2: "Kliknij w pole wiadomo\u015Bci i wklej: Ctrl+V (na Macu: Cmd+V).",
+    handoffStep3: "Naci\u015Bnij Enter i poczekaj na odpowied\u017A.",
+    handoffNotCopied: "Kliknij przycisk poni\u017Cej, \u017Ceby skopiowa\u0107 tekst i otworzy\u0107 {app}.",
+    copyAndOpen: "Skopiuj i otw\xF3rz {app}",
+    copyAgain: "Skopiuj jeszcze raz",
+    handoffTip: "Je\u015Bli {app} nie szuka w internecie, popro\u015B: \u201ESprawd\u017A to w aktualnych \u017Ar\xF3d\u0142ach\u201D.",
+    optModeLabel: "Kt\xF3rego asystenta u\u017Cywa\u0107?",
+    optModeChatgpt: "ChatGPT (moja subskrypcja)",
+    optModeGrok: "Grok (moja subskrypcja)",
+    optModeApi: "Claude przez klucz API (odpowied\u017A w panelu)",
+    optModeHelp: "Przy ChatGPT i Groku rozszerzenie przygotowuje pytanie i otwiera stron\u0119 asystenta; wystarczy wklei\u0107 i nacisn\u0105\u0107 Enter. Nic nie kosztuje poza subskrypcj\u0105.",
     optTitle: "News Clarity \u2014 ustawienia",
     optKeyLabel: "Klucz API Anthropic",
     optKeyHelp: "Zaczyna si\u0119 od \u201Esk-ant-\u201D. Zapisany tylko na tym komputerze.",
@@ -26666,6 +26680,19 @@ var STRINGS = {
     refusal: "The model declined to assess this material. Try pasting just the article text.",
     truncated: "Note: the text was very long, so only its beginning was sent.",
     footer: "Written by AI. When confidence is low, wait before sharing.",
+    handoffTitle: "Now just two steps:",
+    handoffStep1: "\u2713 {app} is opening in a new tab, and the question is already copied.",
+    handoffStep2: "Click in the message box and paste: Ctrl+V (Mac: Cmd+V).",
+    handoffStep3: "Press Enter and wait for the answer.",
+    handoffNotCopied: "Click the button below to copy the text and open {app}.",
+    copyAndOpen: "Copy and open {app}",
+    copyAgain: "Copy again",
+    handoffTip: "If {app} doesn't search the web, ask it: \u201CCheck this against current sources.\u201D",
+    optModeLabel: "Which assistant should it use?",
+    optModeChatgpt: "ChatGPT (my subscription)",
+    optModeGrok: "Grok (my subscription)",
+    optModeApi: "Claude via API key (answer in the panel)",
+    optModeHelp: "With ChatGPT and Grok the extension prepares the question and opens the assistant's site; just paste and press Enter. No cost beyond the subscription.",
     optTitle: "News Clarity \u2014 settings",
     optKeyLabel: "Anthropic API key",
     optKeyHelp: "Starts with \u201Csk-ant-\u201D. Stored only on this computer.",
@@ -26681,7 +26708,11 @@ var STRINGS = {
     optTestOk: "Key works \u2713"
   }
 };
-var DEFAULT_SETTINGS = { apiKey: "", lang: "pl", textSize: "large" };
+var DEFAULT_SETTINGS = { mode: "chatgpt", apiKey: "", lang: "pl", textSize: "large" };
+var CHAT_APPS = {
+  chatgpt: { name: "ChatGPT", url: "https://chatgpt.com/" },
+  grok: { name: "Grok", url: "https://grok.com/" }
+};
 async function loadSettings() {
   const stored = await chrome.storage.local.get(DEFAULT_SETTINGS);
   return { ...DEFAULT_SETTINGS, ...stored };
@@ -26748,7 +26779,7 @@ async function runTurn({ client, system, messages, signal, onText, onStatus }) {
 }
 
 // src/prompt.js
-var EXTENSION_ADDENDUM = (languageName) => `
+var EXTENSION_ADDENDUM = (languageName, surface) => `
 ## Running inside the browser extension
 The reader is using a Chrome extension. They either pressed a button on a page
 they are reading, selected a passage, or pasted a forwarded message. The item
@@ -26765,13 +26796,17 @@ arrives inside <item> tags, together with the page title and URL when known.
 - If the page text looks cut off by a paywall, work from the headline, the
   visible text and your searches, and say so.
 - Write in ${languageName}, whatever the language of the item.
-- The answer is read in a narrow side panel by an older reader: short
+${surface === "chat" ? `- Use web search: this needs current reporting from several outlets, not
+  memory alone. If you cannot search, say so at the top and mark every point
+  you could not check as unverified.
+- Do not treat posts on social media as confirmation; they are claims.
+- The reader is older: short paragraphs, bullets, no tables. Aim for 400\u2013800 words.` : `- The answer is read in a narrow side panel by an older reader: short
   paragraphs, bullets, no tables, no nested lists. Use the bold section
   labels exactly as in the output format. Aim for 400\u2013800 words.
 - Follow-up questions: answer briefly under the same rules, searching again
-  only if needed.
+  only if needed.`}
 `;
-function buildSystemPrompt(languageName) {
+function buildSystemPrompt(languageName, surface = "panel") {
   return `${`# News Clarity \u2014 project instructions
 
 ## Purpose
@@ -26822,7 +26857,20 @@ Fair means:
 - If the reader shares a link, headline or forwarded message, assess THAT
   specific item first: is it accurate, misleading, or missing context?
 - Language: answer in the language the question was asked in (Polish or English).`}
-${EXTENSION_ADDENDUM(languageName)}`;
+${EXTENSION_ADDENDUM(languageName, surface)}`;
+}
+function buildChatPrompt(item, languageName) {
+  const { text, truncated } = buildItemMessage(item);
+  const prompt = [
+    "Please follow these instructions for your answer.",
+    "",
+    "<instructions>",
+    buildSystemPrompt(languageName, "chat"),
+    "</instructions>",
+    "",
+    text
+  ].join("\n");
+  return { prompt, truncated };
 }
 var MAX_ITEM_CHARS = 6e4;
 function buildItemMessage({ kind, title, url, text }) {
@@ -26982,6 +27030,9 @@ var settings;
 var S;
 var conversation = null;
 var controller = null;
+var handoff = null;
+var fmt = (str, app) => str.replaceAll("{app}", app.name);
+var needsKey = () => settings.mode === "api" && !settings.apiKey;
 function applyStrings() {
   document.documentElement.lang = settings.lang;
   document.documentElement.dataset.size = settings.textSize;
@@ -26992,11 +27043,13 @@ async function init() {
   settings = await loadSettings();
   S = t(settings.lang);
   applyStrings();
-  $("setup").hidden = Boolean(settings.apiKey);
+  $("setup").hidden = !needsKey();
   $("open-settings").onclick = () => chrome.runtime.openOptionsPage();
   $("check-page").onclick = checkPage;
   $("check-text").onclick = checkPasted;
   $("new-check").onclick = reset;
+  $("handoff-new").onclick = reset;
+  $("handoff-copy").onclick = () => copyAndOpen(true);
   $("copy").onclick = copyAnswer;
   $("stop").onclick = () => controller?.abort();
   $("follow-up").onsubmit = (e) => {
@@ -27009,7 +27062,7 @@ async function init() {
         settings = s;
         S = t(s.lang);
         applyStrings();
-        $("setup").hidden = Boolean(s.apiKey);
+        $("setup").hidden = !needsKey();
       });
     }
     if (area === "session" && changes.pending?.newValue) takePending();
@@ -27044,7 +27097,8 @@ function checkPasted() {
   startCheck({ kind: "pasted", text });
 }
 async function startCheck(item) {
-  if (!settings.apiKey) {
+  if (settings.mode !== "api") return startHandoff(item);
+  if (needsKey()) {
     $("setup").hidden = false;
     return;
   }
@@ -27139,11 +27193,54 @@ async function copyAnswer() {
 }
 function showResult() {
   $("start").hidden = true;
+  $("handoff").hidden = true;
   $("result").hidden = false;
+}
+async function startHandoff(item) {
+  const app = CHAT_APPS[settings.mode] ?? CHAT_APPS.chatgpt;
+  const { prompt, truncated } = buildChatPrompt(item, S.languageName);
+  handoff = { prompt, app, opened: false };
+  $("start").hidden = true;
+  $("result").hidden = true;
+  $("handoff").hidden = false;
+  $("handoff-info").textContent = (item.kind === "pasted" ? S.checkingPasted : `${item.kind === "selection" ? S.checkingSelection : S.checkingPage} ${item.title || item.url}`) + (truncated ? ` ${S.truncated}` : "");
+  $("step1").textContent = fmt(S.handoffStep1, app);
+  $("step2").textContent = S.handoffStep2;
+  $("step3").textContent = S.handoffStep3;
+  $("handoff-tip").textContent = fmt(S.handoffTip, app);
+  await copyAndOpen(false);
+}
+async function copyAndOpen(fromButton) {
+  if (!handoff) return;
+  const { app } = handoff;
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(handoff.prompt);
+    copied = true;
+  } catch {
+    copied = false;
+  }
+  if (copied && !handoff.opened) {
+    handoff.opened = true;
+    await chrome.tabs.create({ url: app.url });
+  }
+  $("step1").classList.toggle("dim", !handoff.opened);
+  if (copied) {
+    $("handoff-msg").textContent = fromButton ? S.copied : "";
+    $("handoff-copy").textContent = S.copyAgain;
+    $("handoff-copy").className = "secondary";
+  } else {
+    $("handoff-msg").textContent = fmt(S.handoffNotCopied, app);
+    $("handoff-copy").textContent = fmt(S.copyAndOpen, app);
+    $("handoff-copy").className = "primary";
+  }
 }
 function reset() {
   if (busy()) return;
   conversation = null;
+  handoff = null;
+  $("handoff").hidden = true;
+  $("handoff-msg").textContent = "";
   $("answer").innerHTML = "";
   $("item-info").textContent = "";
   $("paste").value = "";

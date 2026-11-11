@@ -26613,6 +26613,20 @@ var STRINGS = {
     truncated: "Uwaga: tekst by\u0142 bardzo d\u0142ugi, wi\u0119c przekazano tylko jego pocz\u0105tek.",
     footer: "Odpowied\u017A przygotowa\u0142a sztuczna inteligencja. Przy niskiej pewno\u015Bci \u2014 wstrzymaj si\u0119 z udost\u0119pnianiem.",
     // options page
+    // chat hand-off (ChatGPT / Grok subscription)
+    handoffTitle: "Teraz jeszcze dwa kroki:",
+    handoffStep1: "\u2713 {app} otwiera si\u0119 w nowej karcie, a pytanie jest ju\u017C skopiowane.",
+    handoffStep2: "Kliknij w pole wiadomo\u015Bci i wklej: Ctrl+V (na Macu: Cmd+V).",
+    handoffStep3: "Naci\u015Bnij Enter i poczekaj na odpowied\u017A.",
+    handoffNotCopied: "Kliknij przycisk poni\u017Cej, \u017Ceby skopiowa\u0107 tekst i otworzy\u0107 {app}.",
+    copyAndOpen: "Skopiuj i otw\xF3rz {app}",
+    copyAgain: "Skopiuj jeszcze raz",
+    handoffTip: "Je\u015Bli {app} nie szuka w internecie, popro\u015B: \u201ESprawd\u017A to w aktualnych \u017Ar\xF3d\u0142ach\u201D.",
+    optModeLabel: "Kt\xF3rego asystenta u\u017Cywa\u0107?",
+    optModeChatgpt: "ChatGPT (moja subskrypcja)",
+    optModeGrok: "Grok (moja subskrypcja)",
+    optModeApi: "Claude przez klucz API (odpowied\u017A w panelu)",
+    optModeHelp: "Przy ChatGPT i Groku rozszerzenie przygotowuje pytanie i otwiera stron\u0119 asystenta; wystarczy wklei\u0107 i nacisn\u0105\u0107 Enter. Nic nie kosztuje poza subskrypcj\u0105.",
     optTitle: "News Clarity \u2014 ustawienia",
     optKeyLabel: "Klucz API Anthropic",
     optKeyHelp: "Zaczyna si\u0119 od \u201Esk-ant-\u201D. Zapisany tylko na tym komputerze.",
@@ -26666,6 +26680,19 @@ var STRINGS = {
     refusal: "The model declined to assess this material. Try pasting just the article text.",
     truncated: "Note: the text was very long, so only its beginning was sent.",
     footer: "Written by AI. When confidence is low, wait before sharing.",
+    handoffTitle: "Now just two steps:",
+    handoffStep1: "\u2713 {app} is opening in a new tab, and the question is already copied.",
+    handoffStep2: "Click in the message box and paste: Ctrl+V (Mac: Cmd+V).",
+    handoffStep3: "Press Enter and wait for the answer.",
+    handoffNotCopied: "Click the button below to copy the text and open {app}.",
+    copyAndOpen: "Copy and open {app}",
+    copyAgain: "Copy again",
+    handoffTip: "If {app} doesn't search the web, ask it: \u201CCheck this against current sources.\u201D",
+    optModeLabel: "Which assistant should it use?",
+    optModeChatgpt: "ChatGPT (my subscription)",
+    optModeGrok: "Grok (my subscription)",
+    optModeApi: "Claude via API key (answer in the panel)",
+    optModeHelp: "With ChatGPT and Grok the extension prepares the question and opens the assistant's site; just paste and press Enter. No cost beyond the subscription.",
     optTitle: "News Clarity \u2014 settings",
     optKeyLabel: "Anthropic API key",
     optKeyHelp: "Starts with \u201Csk-ant-\u201D. Stored only on this computer.",
@@ -26681,7 +26708,7 @@ var STRINGS = {
     optTestOk: "Key works \u2713"
   }
 };
-var DEFAULT_SETTINGS = { apiKey: "", lang: "pl", textSize: "large" };
+var DEFAULT_SETTINGS = { mode: "chatgpt", apiKey: "", lang: "pl", textSize: "large" };
 async function loadSettings() {
   const stored = await chrome.storage.local.get(DEFAULT_SETTINGS);
   return { ...DEFAULT_SETTINGS, ...stored };
@@ -26710,15 +26737,24 @@ function applyStrings(lang, size) {
   document.querySelectorAll("[data-t]").forEach((el) => el.textContent = S[el.dataset.t] ?? "");
 }
 var settings = await loadSettings();
+$("mode").value = settings.mode;
 $("api-key").value = settings.apiKey;
 $("lang").value = settings.lang;
 $("size").value = settings.textSize;
 applyStrings(settings.lang, settings.textSize);
+function showApiSection() {
+  const api = $("mode").value === "api";
+  $("api-section").hidden = !api;
+  $("test").hidden = !api;
+}
+showApiSection();
+$("mode").onchange = showApiSection;
 $("lang").onchange = () => applyStrings($("lang").value, $("size").value);
 $("size").onchange = () => applyStrings($("lang").value, $("size").value);
 $("settings").onsubmit = async (e) => {
   e.preventDefault();
   await chrome.storage.local.set({
+    mode: $("mode").value,
     apiKey: $("api-key").value.trim(),
     lang: $("lang").value,
     textSize: $("size").value
