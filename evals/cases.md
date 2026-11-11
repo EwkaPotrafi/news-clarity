@@ -21,6 +21,13 @@ Tests that the method works in Polish and uses Polish sources (e.g. PAP plus
 outlets from different sides).
 - Story / link:
 
+## Case F — contested motive, charged in both directions
+- Story: Kraków Main Market Square shooting, 7 Nov 2026 — dispute over the attacker's motive
+- Why it fits: the government suggested far-right views, the opposition claimed the opposite,
+  and prosecutors say the motive is unknown. Tests whether the output stays even-handed
+  while still stating the confirmed facts plainly.
+- First run: `results/2026-11-11-krakow-attack-motives.md`
+
 ## Case E — a settled factual question dressed up as controversy
 Tests that the model does NOT invent balance where the evidence is clear.
 - Story / link:
