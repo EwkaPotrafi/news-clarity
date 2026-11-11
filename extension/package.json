@@ -1,12 +1,13 @@
 {
   "name": "news-clarity-extension",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Chrome extension that runs the News Clarity method on the page you are reading",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "package": "node package.mjs"
+    "package": "node package.mjs",
+    "store": "node store.mjs"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^1.8.0",

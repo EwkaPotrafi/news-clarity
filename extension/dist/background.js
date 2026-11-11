@@ -31,7 +31,7 @@ var STRINGS = {
     emptyPaste: "Wklej najpierw jaki\u015B tekst.",
     cannotRead: "Nie mog\u0119 odczyta\u0107 tej strony (np. strona ustawie\u0144 Chrome albo PDF). Zaznacz tekst i u\u017Cyj prawego przycisku myszy albo wklej go poni\u017Cej.",
     pageTooShort: "Na tej stronie prawie nie ma tekstu. Otw\xF3rz konkretny artyku\u0142 albo wklej tekst poni\u017Cej.",
-    errAuth: "Klucz API jest nieprawid\u0142owy lub wygas\u0142. Popro\u015B Ew\u0119 o sprawdzenie ustawie\u0144.",
+    errAuth: "Klucz API jest nieprawid\u0142owy lub wygas\u0142. Popro\u015B osob\u0119, kt\xF3ra zainstalowa\u0142a rozszerzenie, o sprawdzenie ustawie\u0144.",
     errRate: "Za du\u017Co zapyta\u0144 naraz albo wyczerpany limit. Spr\xF3buj ponownie za kilka minut.",
     errConnection: "Brak po\u0142\u0105czenia z internetem albo serwer nie odpowiada. Spr\xF3buj ponownie.",
     errOverloaded: "Serwer jest chwilowo przeci\u0105\u017Cony. Spr\xF3buj ponownie za chwil\u0119.",

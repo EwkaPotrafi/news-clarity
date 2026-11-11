@@ -42,10 +42,10 @@ Edit the HTML in `install-guide/` to change the guides.
 6. Click the puzzle-piece icon in the toolbar and **pin** News Clarity so the
    icon is always visible.
 
-Chrome may show a "developer mode extensions" warning at startup; tell Dad
-it's expected and to click it away. If that's a nuisance, publish it as an
-**unlisted** item on the Chrome Web Store (one-off $5 developer fee):
-upload the contents of `dist/` as a ZIP.
+Chrome may show a "developer mode extensions" warning at startup; it's
+expected. To avoid it (and get automatic updates), publish it as an
+**unlisted** Chrome Web Store item: see `store/SUBMISSION.md`, and run
+`npm run store` to build the upload ZIP, screenshots and promo tile.
 
 ## The API key (only for Claude API mode)
 - Create it at console.anthropic.com → API keys. Use a **separate key just for
@@ -58,7 +58,7 @@ upload the contents of `dist/` as a ZIP.
 ## Permissions, and why
 | Permission | Why |
 |---|---|
-| Read pages (`<all_urls>`, `scripting`) | To read the article text — only when he presses the button or uses the right-click menu. Nothing runs in the background. |
+| Read pages (`<all_urls>` host permission, `scripting`) | To read the article text — only when he presses the button or uses the right-click menu. Nothing runs in the background. |
 | `sidePanel` | The panel next to the page. |
 | `contextMenus` | The right-click "check selected text". |
 | `storage` | The key and settings. |
@@ -89,3 +89,6 @@ computer replace the `dist` folder and press the ↻ reload button on
 | `src/options.js` | Settings page |
 | `src/i18n.js` | All Polish/English UI text |
 | `static/` | Manifest, HTML, CSS, icons (copied into `dist/`) |
+| `install-guide/` | Source of the PDF guides in the install package |
+| `store/` | Web Store kit: `SUBMISSION.md` (step by step), `LISTING.md`, `PRIVACY.md`, screenshot sources |
+| `package.mjs` / `store.mjs` | `npm run package` (ZIP + PDFs) / `npm run store` (Web Store files) |

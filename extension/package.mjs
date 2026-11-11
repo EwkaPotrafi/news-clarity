@@ -19,7 +19,8 @@ const zipPath = path.join(root, "release", "News-Clarity.zip");
 
 execFileSync("node", ["build.mjs"], { cwd: root, stdio: "inherit" });
 
-await rm(path.join(root, "release"), { recursive: true, force: true });
+await rm(stage, { recursive: true, force: true });
+await rm(zipPath, { force: true });
 await mkdir(stage, { recursive: true });
 await cp(path.join(root, "dist"), path.join(stage, "news-clarity"), { recursive: true });
 

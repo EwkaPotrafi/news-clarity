@@ -31,7 +31,7 @@ export const STRINGS = {
     emptyPaste: "Wklej najpierw jakiś tekst.",
     cannotRead: "Nie mogę odczytać tej strony (np. strona ustawień Chrome albo PDF). Zaznacz tekst i użyj prawego przycisku myszy albo wklej go poniżej.",
     pageTooShort: "Na tej stronie prawie nie ma tekstu. Otwórz konkretny artykuł albo wklej tekst poniżej.",
-    errAuth: "Klucz API jest nieprawidłowy lub wygasł. Poproś Ewę o sprawdzenie ustawień.",
+    errAuth: "Klucz API jest nieprawidłowy lub wygasł. Poproś osobę, która zainstalowała rozszerzenie, o sprawdzenie ustawień.",
     errRate: "Za dużo zapytań naraz albo wyczerpany limit. Spróbuj ponownie za kilka minut.",
     errConnection: "Brak połączenia z internetem albo serwer nie odpowiada. Spróbuj ponownie.",
     errOverloaded: "Serwer jest chwilowo przeciążony. Spróbuj ponownie za chwilę.",
